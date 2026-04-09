@@ -1,0 +1,143 @@
+    \documentclass[12pt,a4paper]{article}
+    \usepackage[utf8]{inputenc}
+    \usepackage[T1]{fontenc}
+    \usepackage[brazil]{babel}
+    \usepackage{lmodern}
+    \usepackage{geometry}
+    \usepackage{hyperref}
+    \usepackage{longtable}
+    \usepackage{booktabs}
+    \geometry{margin=2.5cm}
+
+    \title{Documentação do Projeto: Calculadora API}
+    \author{Diego Manzani de Lima}  
+    \date{\today}   
+    \begin{document}
+    \maketitle
+
+
+    \begin{document}
+    \maketitle
+
+    \begin{abstract}
+    Este documento descreve o desenvolvimento da Calculadora API, um sistema básico de cálculo remoto criado para a disciplina de Sistemas Distribuídos.
+    A solução inclui um backend em FastAPI, persistência em SQLite e um frontend leve em HTML, CSS e JavaScript.
+    \end{abstract}
+
+    \section{Introdução}
+    O objetivo deste trabalho é implementar uma API de calculadora que permita executar operações aritméticas básicas e armazenar o histórico de cálculos.
+    A solução deve ser acessível por meio da web e oferecer uma interface simples para utilização.
+
+    \section{Contexto e Requisitos}
+    A aplicação foi desenvolvida para a atividade "Calculadora API — Nível Básico" do professor Gleydes Oliveira.
+    Os principais requisitos foram:
+    \begin{itemize}
+    \item criar uma API RESTful capaz de realizar operações de soma, subtração, multiplicação e divisão;
+    \item permitir consulta de histórico de cálculos realizados;
+    \item tratar erros comuns, como divisão por zero;
+    \item disponibilizar uma interface frontend para interação do usuário.
+    \end{itemize}
+
+    \section{Arquitetura da Solução}
+    A solução foi estruturada em duas camadas principais:
+    \begin{enumerate}
+    \item backend: implementado com FastAPI e SQLAlchemy, fornece endpoints HTTP para lógica de cálculo e armazenamento;
+    \item frontend: uma página HTML com JavaScript que consome a API e exibe resultados e histórico.
+    \end{enumerate}
+
+    \section{Detalhes do Backend}
+    \subsection{Tecnologias}
+    A API foi implementada com as seguintes tecnologias:
+    \begin{itemize}
+    \item Python 3.x;
+    \item FastAPI para construção dos endpoints;
+    \item SQLAlchemy para mapeamento objeto-relacional;
+    \item SQLite para persistência local dos registros de cálculo;
+    \item Uvicorn para execução do servidor de desenvolvimento.
+    \end{itemize}
+
+    \subsection{Estrutura de Código}
+    Os arquivos principais do backend são:
+    \begin{itemize}
+    \item \texttt{main.py}: define a API, os modelos Pydantic, as rotas e as operações;
+    \item \texttt{database.py}: configura a conexão com SQLite e cria a sessão de banco de dados;
+    \item \texttt{models.py}: define a entidade \texttt{Calculo} usada para persistência.
+    \end{itemize}
+
+    \subsection{Modelo de Dados}
+    A tabela \texttt{calculos} armazena os dados de cada operação:
+    \begin{itemize}
+    \item \texttt{id}: identificador único;
+    \item \texttt{numero1}: primeiro operando;
+    \item \texttt{numero2}: segundo operando;
+    \item \texttt{operacao}: tipo de operação (soma, subtracao, multiplicacao, divisao);
+    \item \texttt{resultado}: resultado numérico da operação.
+    \end{itemize}
+
+    \subsection{Endpoints da API}
+    A API fornece os seguintes endpoints principais:
+    \begin{description}
+    \item[\texttt{GET /}] retorno de boas-vindas e link para documentação automática.
+    \item[\texttt{GET /app}] redireciona para a interface web hospedada em \texttt{calculadora-api/index.html}.
+    \item[\texttt{POST /somar}] soma dois números e retorna o resultado.
+    \item[\texttt{POST /subtrair}] subtrai dois números e retorna o resultado.
+    \item[\texttt{POST /multiplicar}] multiplica dois números e retorna o resultado.
+    \item[\texttt{POST /dividir}] divide dois números e retorna o resultado, com tratamento de divisão por zero.
+    \item[\texttt{GET /calcular}] aceita parâmetros de query para executar qualquer operação válida.
+    \item[\texttt{GET /historico}] retorna o histórico completo de cálculos armazenados.
+    \item[\texttt{PUT /calculo/{id}]\newline} atualiza o resultado de um cálculo específico.
+    \item[\texttt{DELETE /calculo/{id}]\newline} remove um cálculo do histórico.
+    \end{description}
+
+    \section{Detalhes do Frontend}
+    O frontend é composto por três arquivos localizados em \texttt{calculadora-api/}:
+    \begin{itemize}
+    \item \texttt{index.html}: interface do usuário com formulário e botões de consulta;
+    \item \texttt{styles.css}: estilos visuais básicos para a página;
+    \item \texttt{app.js}: lógica JavaScript que consome os endpoints da API.
+    \end{itemize}
+
+    \subsection{Funcionalidades do Frontend}
+    A interface permite:
+    \begin{itemize}
+    \item inserir dois números e selecionar a operação desejada;
+    \item enviar a requisição para \texttt{/calcular} usando \texttt{fetch};
+    \item exibir o resultado retornado pela API;
+    \item carregar o histórico de cálculos por meio de \texttt{/historico};
+    \item verificar se a API está ativa com o endpoint de boas-vindas \texttt{/}.
+    \end{itemize}
+
+    \subsection{Fluxo de Uso}
+    Ao submeter o formulário, o JavaScript monta uma URL de consulta com os parâmetros escolhidos e chama o endpoint \texttt{/calcular}.
+    Quando o histórico é carregado, o frontend renderiza a lista de registros retornada pela API.
+
+    \section{Validação e Tratamento de Erros}
+    A API trata situações de erro importantes:
+    \begin{itemize}
+    \item divisão por zero retorna erro HTTP 400 com mensagem explicativa;
+    \item operação inválida em \texttt{/calcular} também retorna erro HTTP 400;
+    \item operações de atualização e remoção verificam a existência do registro antes de alterar ou excluir.
+    \end{itemize}
+
+    \section{Como Executar o Projeto}
+    Para executar localmente, siga estes passos:
+    \begin{enumerate}
+    \item instalar as dependências com \texttt{pip install -r requirements.txt};
+    \item iniciar o servidor com \texttt{uvicorn main:app --reload};
+    \item acessar a interface via navegador em \texttt{http://127.0.0.1:8000/app} ou a documentação em \texttt{http://127.0.0.1:8000/docs}.
+    \end{enumerate}
+
+    \section{Exercícios Realizados}
+    O desenvolvimento atendeu aos seguintes exercícios propostos:
+    \begin{itemize}
+    \item implementação de uma API RESTful básica para cálculo;
+    \item persistência de histórico usando SQLite;
+    \item integração frontend-backend com fetch API;
+    \item tratamento de erros e respostas padronizadas.
+    \end{itemize}
+
+    \section{Considerações Finais}
+    A Calculadora API demonstra o uso de um serviço web leve para operação remota de cálculo, com persistência de dados e interface amigável.
+    A arquitetura adotada permite extensão futura para novas operações e autenticação, mantendo a separação entre backend e frontend.
+
+    \end{document}
